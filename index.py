@@ -68,9 +68,9 @@ neutral = 0
 negative = 0
 for i in result:
     if i == 'O':
-        opinion += 1
-    else:
         nonOpinion += 1
+    else:
+        opinion += 1
         if i == '1':
             positive += 1
         elif i == '0':
