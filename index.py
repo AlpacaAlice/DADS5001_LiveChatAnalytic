@@ -6,6 +6,8 @@ import plotly.express as px
 import plotly.graph_objs as go
 import flag
 import emoji
+import getViewLike
+import datetime
 
 PLOTLY_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/2449px-NASA_logo.svg.png"
 NAVBAR = dbc.Navbar(
@@ -58,8 +60,9 @@ df = pd.DataFrame({'Sentiment': ['Opinion', 'Opinion', 'Opinion', 'Non-Opinion']
                    'Emotion':   ['Positive', 'Neutral', 'Negative', None],
                    'Comment Count': [positive, neutral, negative, nonOpinion]})
 
-sentiment_sum_fig = px.sunburst(df, path=["Sentiment", "Emotion"],values='Comment Count',width=700, height=700)
-
+sentiment_sum_fig = px.sunburst(df, path=["Sentiment", "Emotion"],values='Comment Count',width=700)
+sentiment_sum_fig.update_layout(margin = dict(t=0, l=0, r=0, b=0))
+sentiment_sum_fig.update_traces(rotation=180, selector=dict(type='sunburst'))
 
 SENTIMENT = [
     dbc.CardHeader(html.H5("Sentiment analysis")),
@@ -173,7 +176,10 @@ USER = [
     ),
 ]
 
-df_peaktime = pd.read_csv('04_PeakTime.csv')
+# df_peaktime = pd.read_csv('04_PeakTime.csv')
+d = {'time': ['0:03', '0:05', '0:08'], 'count': [3, 4, 2]}
+df_peaktime = pd.DataFrame(data=d)
+
 df_peaktime = df_peaktime.rename(columns={'0': 'count', 'Unnamed: 0': 'time'})
 df_peaktime = df_peaktime.reset_index()
 fig_peaktime = px.line(df_peaktime.iloc[3900:4000,:], x='time', y='count', markers=True)
@@ -205,6 +211,9 @@ PEAKTIME = [
     ),
 ]
 
+view = getViewLike.getView()
+current = datetime.datetime.now()
+update_text = str(current.year) + '-' + str(current.month) + '-' + str(current.day) + ' ' + str(current.hour) + ':' + str(current.minute)
 VIEWCOUNT = [
     dbc.CardHeader(html.H5("View Count")),
     dbc.CardBody(
@@ -212,16 +221,55 @@ VIEWCOUNT = [
             dbc.Row(
                 [
                     dbc.Col(
-                        html.P('11.2 M'),
-                        style={"textAlign": "center", "fontSize": "80px"}
+                        html.P(view, style={"marginBottom": "0px"}),
+                        style={"textAlign": "center", "fontSize": "50px", "marginBottom": "0px"}
                     ),
                 ]
-            )
-        ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.P('last updated: ' + update_text),
+                        style={"textAlign": "right", "fontSize": "10px", "marginBottom": "0px"}
+                    ),
+                ]
+            ),
+        ],
+        style={"paddingBottom": "0px", "paddingTop": "0px"}
+    ),
+]
+
+like = getViewLike.getLike()
+current = datetime.datetime.now()
+update_text = str(current.year) + '-' + str(current.month) + '-' + str(current.day) + ' ' + str(current.hour) + ':' + str(current.minute)
+LIKECOUNT = [
+    dbc.CardHeader(html.H5("Like Count")),
+    dbc.CardBody(
+        [
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.P(like, style={"marginBottom": "0px"}),
+                        style={"textAlign": "center", "fontSize": "50px", "marginBottom": "0px"}
+                    ),
+                ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.P('last updated: ' + update_text),
+                        style={"textAlign": "right", "fontSize": "10px", "marginBottom": "0px"}
+                    ),
+                ]
+            ),
+        ],
+        style={"paddingBottom": "0px", "paddingTop": "0px"}
     ),
 ]
 
 count_all_comment  = df_peaktime['count'].sum()
+current = datetime.datetime.now()
+update_text = str(current.year) + '-' + str(current.month) + '-' + str(current.day) + ' ' + str(current.hour) + ':' + str(current.minute)
 COMMENT = [
     dbc.CardHeader(html.H5("Comment Count")),
     dbc.CardBody(
@@ -229,12 +277,21 @@ COMMENT = [
             dbc.Row(
                 [
                     dbc.Col(
-                        html.P("{:.2f}".format(count_all_comment/1000) + ' k'),
-                        style={"textAlign": "center", "fontSize": "80px"}
+                        html.P("{:.2f}".format(count_all_comment/1000) + ' k', style={"marginBottom": "0px"}),
+                        style={"textAlign": "center", "fontSize": "50px", "marginBottom": "0px"}
                     ),
                 ]
-            )
-        ]
+            ),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        html.P('last updated: ' + update_text),
+                        style={"textAlign": "right", "fontSize": "10px", "marginBottom": "0px"}
+                    ),
+                ]
+            ),
+        ],
+        style={"paddingBottom": "0px", "paddingTop": "0px"}
     ),
 ]
 
@@ -300,7 +357,7 @@ NAVBAR2 = dbc.Navbar(
 BODY = dbc.Container(
     [
         dbc.Row([dbc.Col(dbc.Card(VIDEO)),], style={"marginTop": 30}, id='video-card'),
-        dbc.Row([dbc.Col(dbc.Card(VIEWCOUNT)), dbc.Col(dbc.Card(COMMENT))], style={"marginTop": 30}),
+        dbc.Row([dbc.Col(dbc.Card(VIEWCOUNT)), dbc.Col(dbc.Card(COMMENT)), dbc.Col(dbc.Card(LIKECOUNT))], style={"marginTop": 30}),
         dbc.Row([dbc.Col(dbc.Card(PEAKTIME)),], style={"marginTop": 30}, id='peaktime-card'),
         dbc.Row([dbc.Col(dbc.Card(SENTIMENT)),], style={"marginTop": 30}, id='sentiment-card'),
         dbc.Row([dbc.Col(dbc.Card(EMOJI)),], style={"marginTop": 30}, id='emoji-card'),
