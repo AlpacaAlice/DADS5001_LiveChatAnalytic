@@ -5,6 +5,8 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
 from wordcloud import WordCloud, STOPWORDS
+import flag
+import emoji
 
 PLOTLY_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/2449px-NASA_logo.svg.png"
 NAVBAR = dbc.Navbar(
@@ -121,13 +123,16 @@ SENTIMENT = [
     ),
 ]
 
-df_emoji = pd.read_csv('02_Emoji.csv', header=None)
+df_emoji = pd.read_csv('02_Emoji_2.csv', header=None)
 df_emoji = df_emoji.rename(columns={0: 'name', 1: 'count'})
 df_emoji_flt = df_emoji.loc[0:19,:]
 emoji_name_lst = df_emoji_flt['name'].values.tolist()
 emoji_name_lst_rev = emoji_name_lst[::-1]
 emoji_count_lst = df_emoji_flt['count'].values.tolist()
 emoji_count_lst_rev = emoji_count_lst[::-1]
+
+for index, emo in enumerate(emoji_name_lst_rev):
+    emoji_name_lst_rev[index] = flag.flagize(emoji.emojize(emo))
 
 emoji_figure = go.Figure(
     go.Bar(
@@ -153,8 +158,9 @@ for i in range(len(emoji_figure.data[0].x)):
         sizex=200,
         sizey=200,
     )
-emoji_figure.update_layout(xaxis={"visible":False})
-emoji_figure.update_yaxes(range=[0, 3000])
+# emoji_figure.update_layout(xaxis={"visible":False})
+# emoji_figure.update_yaxes(range=[0, 3000])
+emoji_figure.update_xaxes(tickfont_size=20)
 EMOJI = [
     dbc.CardHeader(html.H5("Frequently Used Emojis")),
     dbc.CardBody(
@@ -356,6 +362,7 @@ VIEWCOUNT = [
     ),
 ]
 
+count_all_comment  = df_peaktime['count'].sum()
 COMMENT = [
     dbc.CardHeader(html.H5("Comment Count")),
     dbc.CardBody(
@@ -363,7 +370,7 @@ COMMENT = [
             dbc.Row(
                 [
                     dbc.Col(
-                        html.P("{:.2f}".format(df_peaktime['index'].values[-1]/1000) + ' k'),
+                        html.P("{:.2f}".format(count_all_comment/1000) + ' k'),
                         style={"textAlign": "center", "fontSize": "80px"}
                     ),
                 ]
