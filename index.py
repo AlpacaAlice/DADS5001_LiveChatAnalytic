@@ -4,7 +4,6 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from wordcloud import WordCloud, STOPWORDS
 import flag
 import emoji
 
@@ -14,7 +13,7 @@ NAVBAR = dbc.Navbar(
         html.A(
             dbc.Row(
                 [
-                    dbc.Col(html.Img(src=PLOTLY_LOGO, height="60px", alt="nasa-logo")),
+                    dbc.Col(html.Img(src=PLOTLY_LOGO, height="40px", alt="nasa-logo")),
                     dbc.Col(
                         dbc.NavbarBrand("JAMES WEBB SPACE TELESCOPE LAUNCH", className="ml-2")
                     ),
@@ -23,29 +22,6 @@ NAVBAR = dbc.Navbar(
             ),
             style={'marginLeft': '20px'}
         ),
-        html.Div(
-            [
-                dbc.Button("Status", outline=True, color="primary", className="me-2", href="https://www.jwst.nasa.gov/content/webbLaunch/whereIsWebb.html", target="_blank"),
-                dbc.Button("About", outline=True, color="primary", id="open-lg", className="me-2", n_clicks=0),
-                dbc.Modal(
-                    [
-                        dbc.ModalHeader(dbc.ModalTitle("About")),
-                        dbc.ModalBody([
-                            html.P('Member'),
-                            html.Ul([
-                                html.Li('Napasakon Monbut 6420422009'),
-                                html.Li('Natchapat Youngchoay 6420422013'),
-                            ])
-                        ]),
-                    ],
-                    id="modal-lg",
-                    size="lg",
-                    is_open=False,
-                )
-            ],
-            style={'marginRight': '20px'},
-            className="d-flex justify-content-between"
-        )
     ],
     color="dark",
     dark=True,
@@ -144,22 +120,6 @@ emoji_figure.update_layout(
     height=550,
     margin=dict(t=20, b=20, l=100, r=20, pad=4)
 )
-for i in range(len(emoji_figure.data[0].x)):
-    x = emoji_figure.data[0].x[i]
-    y = emoji_figure.data[0].y[i]
-    EMOJI_SVG = app.get_asset_url(x + '.svg')
-    emoji_figure.add_layout_image(
-        source=EMOJI_SVG,
-        x=x,
-        y=y + 250,
-        xref="x",
-        yref="y",
-        xanchor="center",
-        sizex=200,
-        sizey=200,
-    )
-# emoji_figure.update_layout(xaxis={"visible":False})
-# emoji_figure.update_yaxes(range=[0, 3000])
 emoji_figure.update_xaxes(tickfont_size=20)
 EMOJI = [
     dbc.CardHeader(html.H5("Frequently Used Emojis")),
@@ -197,72 +157,6 @@ frequency_figure_data = {
     ],
     "layout": {"height": "550", "margin": dict(t=20, b=20, l=100, r=20, pad=4)},
 }
-
-# Wordclound
-df_comment['name'] = df_comment['name'].str.replace(" ", "")
-complaints_text = list(df_comment["name"].dropna().values)
-text = " ".join(list(complaints_text))
-word_cloud = WordCloud(stopwords=set(STOPWORDS), max_words=100, max_font_size=90)
-word_cloud.generate(text)
-word_list = []
-freq_list = []
-fontsize_list = []
-position_list = []
-orientation_list = []
-color_list = []
-
-for (word, freq), fontsize, position, orientation, color in word_cloud.layout_:
-    word_list.append(word)
-    freq_list.append(freq)
-    fontsize_list.append(fontsize)
-    position_list.append(position)
-    orientation_list.append(orientation)
-    color_list.append(color)
-
-# get the positions
-x_arr = []
-y_arr = []
-for i in position_list:
-    x_arr.append(i[0])
-    y_arr.append(i[1])
-
-# get the relative occurence frequencies
-new_freq_list = []
-for i in freq_list:
-    new_freq_list.append(i * 80)
-
-trace = go.Scatter(
-    x=x_arr,
-    y=y_arr,
-    textfont=dict(size=new_freq_list, color=color_list),
-    hoverinfo="text",
-    textposition="top center",
-    hovertext=["{0} - {1}".format(w, f) for w, f in zip(word_list, freq_list)],
-    mode="text",
-    text=word_list,
-)
-
-layout = go.Layout(
-    {
-        "xaxis": {
-            "showgrid": False,
-            "showticklabels": False,
-            "zeroline": False,
-            "automargin": True,
-            "range": [-100, 250],
-        },
-        "yaxis": {
-            "showgrid": False,
-            "showticklabels": False,
-            "zeroline": False,
-            "automargin": True,
-            "range": [-100, 450],
-        },
-        "margin": dict(t=20, b=20, l=10, r=10, pad=4),
-        "hovermode": "closest",
-    }
-)
-wordcloud_figure_data = {"data": [trace], "layout": layout}
 USER = [
     dbc.CardHeader(html.H5("Participated User")),
     dbc.CardBody(
@@ -287,18 +181,6 @@ USER = [
                                             dcc.Loading(
                                                 id="loading-treemap",
                                                 children=[dcc.Graph(id="user-treemap", figure=treemap_figure)],
-                                                type="default",
-                                            )
-                                        ],
-                                    ),
-                                    dcc.Tab(
-                                        label="Overall Comment",
-                                        children=[
-                                            dcc.Loading(
-                                                id="loading-wordcloud",
-                                                children=[
-                                                    dcc.Graph(id="user-wordcloud", figure=wordcloud_figure_data)
-                                                ],
                                                 type="default",
                                             )
                                         ],
@@ -388,19 +270,69 @@ VIDEO = [
     )
 ]
 
+NAVBAR2 = dbc.Navbar(
+    children=[
+        html.A(
+            dbc.Row(
+                [
+                    dbc.Col([
+                        html.A(dbc.Button("Home", outline=False, color="#FFFF", className="me-2", href="", target="_blank"), href='#video-card')
+                    ]),
+                    dbc.Col([
+                        html.A(dbc.Button("PeakTime", outline=False, color="#FFFF", className="me-2", href="", target="_blank"), href='#peaktime-card')
+                    ]),
+                    dbc.Col([
+                        html.A(dbc.Button("Sentiment", outline=False, color="#FFFF", className="me-2", href="", target="_blank"), href='#sentiment-card')
+                    ]),
+                    dbc.Col([
+                        html.A(dbc.Button("Emoji", outline=False, color="#FFFF", className="me-2", href="", target="_blank"), href='#emoji-card')
+                    ]),
+                    dbc.Col([
+                        html.A(dbc.Button("Comment", outline=False, color="#FFFF", className="me-2", href="", target="_blank"), href='#user-card')
+                    ]),
+                    dbc.Col([
+                        dbc.Button("About", outline=False, color="#FFFF", id="open-lg", className="me-2", n_clicks=0),
+                        dbc.Modal(
+                            [
+                                dbc.ModalHeader(dbc.ModalTitle("About")),
+                                dbc.ModalBody([
+                                    html.P('Member'),
+                                    html.Ul([
+                                        html.Li('Napasakon Monbut 6420422009'),
+                                        html.Li('Natchapat Youngchoay 6420422013'),
+                                    ])
+                                ]),
+                            ],
+                            id="modal-lg",
+                            size="lg",
+                            is_open=False,
+                        )
+                    ])
+                ],
+                align="center",
+            ),
+            style={'marginLeft': '20px'}
+        ),
+    ],
+    color="#FFFF",
+    dark=True,
+    sticky="top",
+    className="justify-content-between"
+)
+
 BODY = dbc.Container(
     [
-        dbc.Row([dbc.Col(dbc.Card(VIDEO)),], style={"marginTop": 30}),
+        dbc.Row([dbc.Col(dbc.Card(VIDEO)),], style={"marginTop": 30}, id='video-card'),
         dbc.Row([dbc.Col(dbc.Card(VIEWCOUNT)), dbc.Col(dbc.Card(COMMENT))], style={"marginTop": 30}),
-        dbc.Row([dbc.Col(dbc.Card(PEAKTIME)),], style={"marginTop": 30}),
-        dbc.Row([dbc.Col(dbc.Card(SENTIMENT)),], style={"marginTop": 30}),
-        dbc.Row([dbc.Col(dbc.Card(EMOJI)),], style={"marginTop": 30}),
-        dbc.Row([dbc.Col(dbc.Card(USER)),], style={"marginTop": 30, "paddingBottom": 30}),
+        dbc.Row([dbc.Col(dbc.Card(PEAKTIME)),], style={"marginTop": 30}, id='peaktime-card'),
+        dbc.Row([dbc.Col(dbc.Card(SENTIMENT)),], style={"marginTop": 30}, id='sentiment-card'),
+        dbc.Row([dbc.Col(dbc.Card(EMOJI)),], style={"marginTop": 30}, id='emoji-card'),
+        dbc.Row([dbc.Col(dbc.Card(USER)),], style={"marginTop": 30, "paddingBottom": 30}, id='user-card'),
     ],
     className="mt-12",
 )
 
-app.layout = html.Div(children=[NAVBAR, BODY],
+app.layout = html.Div(id='main-layout', children=[NAVBAR, NAVBAR2, BODY],
     style={
         "backgroundImage": "url('https://images8.alphacoders.com/125/1255266.png')",
         "backgroundRepeat": "no-repeat",
