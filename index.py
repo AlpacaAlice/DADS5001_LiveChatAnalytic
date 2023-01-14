@@ -100,6 +100,7 @@ emoji_figure.update_layout(
     height=550,
     margin=dict(t=20, b=20, l=100, r=20, pad=4)
 )
+emoji_figure.update_traces(texttemplate=emoji_count_lst_rev,textposition="inside")
 emoji_figure.update_xaxes(tickfont_size=20)
 EMOJI = [
     dbc.CardHeader(html.H5("Frequently Used Emojis")),
@@ -119,24 +120,18 @@ comment_name_lst = df_comment_flt['name'].values.tolist()
 comment_name_lst_rev = comment_name_lst[::-1]
 comment_name_count = df_comment_flt['count'].values.tolist()
 comment_name_count_rev = comment_name_count[::-1]
-treemap_trace = go.Treemap(
-    labels=comment_name_lst, parents=[""] * len(comment_name_lst), values=comment_name_count
-)
-treemap_layout = go.Layout({"margin": dict(t=10, b=10, l=5, r=5, pad=4)})
-treemap_figure = {"data": [treemap_trace], "layout": treemap_layout}
 
-frequency_figure_data = {
-    "data": [
-        {
-            "y": comment_name_lst_rev,
-            "x": comment_name_count_rev,
-            "type": "bar",
-            "name": "",
-            "orientation": "h",
-        }
-    ],
-    "layout": {"height": "550", "margin": dict(t=20, b=20, l=100, r=20, pad=4)},
-}
+frequency_figure_data = go.Figure(
+    go.Bar(
+        y=comment_name_count_rev,
+        x=comment_name_lst_rev,
+    )
+)
+frequency_figure_data.update_layout(
+    height=550,
+    margin=dict(t=20, b=100, l=100, r=100, pad=4)
+)
+frequency_figure_data.update_traces(texttemplate=comment_name_count_rev,textposition="inside")
 USER = [
     dbc.CardHeader(html.H5("Participated User")),
     dbc.CardBody(
@@ -150,36 +145,13 @@ USER = [
                             type="default",
                         )
                     ),
-                    dbc.Col(
-                        [
-                            dcc.Tabs(
-                                id="tabs",
-                                children=[
-                                    dcc.Tab(
-                                        label="Most Comment",
-                                        children=[
-                                            dcc.Loading(
-                                                id="loading-treemap",
-                                                children=[dcc.Graph(id="user-treemap", figure=treemap_figure)],
-                                                type="default",
-                                            )
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ],
-                        md=8,
-                    ),
                 ]
             )
         ]
     ),
 ]
 
-# df_peaktime = pd.read_csv('04_PeakTime.csv')
-d = {'time': ['0:03', '0:05', '0:08'], 'count': [3, 4, 2]}
-df_peaktime = pd.DataFrame(data=d)
-
+df_peaktime = pd.read_csv('04_PeakTime.csv')
 df_peaktime = df_peaktime.rename(columns={'0': 'count', 'Unnamed: 0': 'time'})
 df_peaktime = df_peaktime.reset_index()
 fig_peaktime = px.line(df_peaktime.iloc[3900:4000,:], x='time', y='count', markers=True)
