@@ -44,9 +44,9 @@ neutral = 0
 negative = 0
 for i in result:
     if i == 'O':
-        opinion += 1
-    else:
         nonOpinion += 1
+    else:
+        opinion += 1
         if i == '1':
             positive += 1
         elif i == '0':
@@ -54,19 +54,12 @@ for i in result:
         else:
             negative += 1
 
-d = {'name': ['Opinion', 'Non-opinion'], 'count': [opinion, nonOpinion]}
-summary_df = pd.DataFrame(data=d)
-d = {'name': ['Positive', 'Neutral', 'Negative'], 'count': [positive, neutral, negative], 'emotion': ['1', '1', '1']}
-emotion_df = pd.DataFrame(data=d)
-sentiment_sum_fig = px.bar(summary_df, x='name', y='count', labels={
-    "name": "",
-    "count": "Comment count"
-})
-sentiment_emotion_fig = px.bar(emotion_df, x='emotion', y='count', color='name', labels={
-    "name": "Emotion",
-    "count": "Comment count"
-})
-sentiment_emotion_fig.update_layout(xaxis_visible=False, xaxis_showticklabels=False)
+df = pd.DataFrame({'Sentiment': ['Opinion', 'Opinion', 'Opinion', 'Non-Opinion'],
+                   'Emotion':   ['Positive', 'Neutral', 'Negative', None],
+                   'Comment Count': [positive, neutral, negative, nonOpinion]})
+
+sentiment_sum_fig = px.sunburst(df, path=["Sentiment", "Emotion"],values='Comment Count',width=700, height=700)
+
 
 SENTIMENT = [
     dbc.CardHeader(html.H5("Sentiment analysis")),
@@ -76,22 +69,6 @@ SENTIMENT = [
                 [
                     dbc.Col(
                         dcc.Graph(id='sentiment-sum-bar',figure=sentiment_sum_fig),
-                    ),
-                    dbc.Col(
-                        [
-                            dcc.Tabs(
-                                id="tabs",
-                                children=[
-                                    dcc.Tab(
-                                        label="Comment Emotional",
-                                        children=[
-                                            dcc.Graph(id='sentiment-emotion-bar',figure=sentiment_emotion_fig),
-                                        ],
-                                    ),
-                                ],
-                            )
-                        ],
-                        md=8,
                     ),
                 ]
             )
