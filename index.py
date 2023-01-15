@@ -8,6 +8,7 @@ import flag
 import emoji
 import getViewLike
 import datetime
+from pathlib import Path
 
 PLOTLY_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/NASA_logo.svg/2449px-NASA_logo.svg.png"
 NAVBAR = dbc.Navbar(
@@ -79,16 +80,13 @@ SENTIMENT = [
     ),
 ]
 
-df_emoji = pd.read_csv('02_Emoji_2.csv', header=None)
+df_emoji = pd.read_csv('02_Emoji.csv', header=None)
 df_emoji = df_emoji.rename(columns={0: 'name', 1: 'count'})
 df_emoji_flt = df_emoji.loc[0:19,:]
 emoji_name_lst = df_emoji_flt['name'].values.tolist()
 emoji_name_lst_rev = emoji_name_lst[::-1]
 emoji_count_lst = df_emoji_flt['count'].values.tolist()
 emoji_count_lst_rev = emoji_count_lst[::-1]
-
-for index, emo in enumerate(emoji_name_lst_rev):
-    emoji_name_lst_rev[index] = flag.flagize(emoji.emojize(emo))
 
 emoji_figure = go.Figure(
     go.Bar(
@@ -100,8 +98,25 @@ emoji_figure.update_layout(
     height=550,
     margin=dict(t=20, b=20, l=100, r=20, pad=4)
 )
-emoji_figure.update_traces(texttemplate=emoji_count_lst_rev,textposition="inside")
-emoji_figure.update_xaxes(tickfont_size=20)
+for i in range(len(emoji_figure.data[0].x)):
+    x = emoji_figure.data[0].x[i]
+    y = emoji_figure.data[0].y[i]
+    if Path('./assets/' + x + '.svg').is_file():
+        EMOJI_SVG = app.get_asset_url(x + '.svg')
+    else:
+        EMOJI_SVG = app.get_asset_url(x + '.png')
+    emoji_figure.add_layout_image(
+        source=EMOJI_SVG,
+        x=x,
+        y=y + 350,
+        xref="x",
+        yref="y",
+        xanchor="center",
+        sizex=300,
+        sizey=300,
+    )
+emoji_figure.update_layout(xaxis={"visible":False})
+emoji_figure.update_yaxes(range=[0, 4500])
 EMOJI = [
     dbc.CardHeader(html.H5("Frequently Used Emojis")),
     dbc.CardBody(
