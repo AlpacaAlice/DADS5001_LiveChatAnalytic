@@ -148,7 +148,7 @@ frequency_figure_data.update_layout(
 )
 frequency_figure_data.update_traces(texttemplate=comment_name_count_rev,textposition="inside")
 USER = [
-    dbc.CardHeader(html.H5("Participated User")),
+    dbc.CardHeader(html.H5("Top Participated User")),
     dbc.CardBody(
         [
             dbc.Row(
